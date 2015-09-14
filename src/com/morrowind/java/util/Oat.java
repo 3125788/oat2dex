@@ -89,10 +89,10 @@ public class Oat {
         @DumpFormat(type = DumpFormat.TYPE_CHAR, isString = true)
         final char[] key_value_store_;
 
-        public Header(DataReader r) throws IOException {
+        public Header(DataReader r) throws IOException, UnknownFormatConversionException {
             r.readBytes(magic_);
             if (magic_[0] != 'o' || magic_[1] != 'a' || magic_[2] != 't') {
-                System.out.printf(String.format("Invalid art magic %c%c%c", magic_[0], magic_[1], magic_[2]));
+                throw new UnknownFormatConversionException(String.format("Invalid art magic %c%c%c", magic_[0], magic_[1], magic_[2]));
             }
             r.readBytes(version_);
             adler32_checksum_ = r.readInt();
@@ -158,15 +158,15 @@ public class Oat {
             final int data_size_;
             final int data_off_;
 
-            public Header(DataReader r) throws IOException {
+            public Header(DataReader r) throws IOException, UnknownFormatConversionException {
                 r.readBytes(magic_);
                 if (magic_[0] != 'd' || magic_[1] != 'e' || magic_[2] != 'x') {
-                    System.out.println(String.format("Invalid dex magic %c%c%c", magic_[0], magic_[1], magic_[2]));
+                    throw new UnknownFormatConversionException(String.format("Invalid dex magic %c%c%c", magic_[0], magic_[1], magic_[2]));
                 }
                 r.readBytes(version_);
                 checksum_= r.readInt();
                 if (version_[0] != '0' || version_[1] != '3' || version_[2] != '5') {
-                    System.out.println(String.format("Invalid dex version %c%c%c", magic_[0], magic_[1], magic_[2]));
+                    throw new UnknownFormatConversionException(String.format("Invalid dex version %c%c%c", magic_[0], magic_[1], magic_[2]));
                 }
                 r.readBytes(signature_);
                 file_size_ = r.readInt();

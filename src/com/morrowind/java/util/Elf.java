@@ -339,7 +339,7 @@ public class Elf implements Closeable {
     private final Elf_Shdr[] mSectionHeaders;
     private byte[] mStringTable;
 
-    public Elf(String file, boolean closeNow) throws IOException {
+    public Elf(String file, boolean closeNow) throws IOException, UnknownFormatConversionException {
         this(file);
         if (closeNow) {
             mReader.close();
@@ -390,7 +390,6 @@ public class Elf implements Closeable {
         mSectionHeaders = new Elf_Shdr[h.e_shnum];
         for (int i = 0; i < h.e_shnum; i++) {
             final long offset = h.getSectionOffset() + (i * h.e_shentsize);
-            System.out.println(h.getProgramOffset());
             r.seek(offset);
             if (is64bit) {
                 Elf64_Shdr secHeader = new Elf64_Shdr();

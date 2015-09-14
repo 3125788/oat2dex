@@ -19,23 +19,29 @@ public class oat2dex {
         if(args.length < 1) {
             System.out.println("Usage: \tjava -jar oat2dex.jar xxx.odex [yyy.dex]");
             System.out.println("\t[yyy.dex] is optional. If not specified, the output will be xxx.dex.");
-            return;
+            System.exit(0);
         }
         
         // Do convertion.
+        int dexFileNumber = 0;
         try {
             System.out.println("Converting oat file to dex file...");
+            
             FileNamer dexFilenamer = new FileNamer(args, ".dex");
             Elf elf = new Elf(args[0]);
             DataReader reader = elf.getReader();
-            reader.seek(0x1000); // oat offset in Elf
+            reader.seek(0x1000); // oat data offset in elf
             Oat oat = new Oat(reader);
             DexFile[] dexFiles = oat.getDexFiles();
-            for(int i = 0; i < dexFiles.length; i++) {
-                dexFiles[i].saveTo(dexFilenamer.getFilename(i));
-                System.out.printf("Create %s -- OK!\n", dexFilenamer.getFilename(i));
+            dexFileNumber = dexFiles.length;
+            String dexFilename = null;
+            for(int i = 0; i < dexFileNumber; i++) {
+                dexFilename = dexFilenamer.getFilename(i);
+                dexFiles[i].saveTo(dexFilename);
+                System.out.printf("Extracting %s\t -- OK!\n", dexFilename);
             }
             elf.close();
+            
         } catch (FileDuplicateException e) {
             System.out.println("Error! The output filename is same as input!");
         } catch (UnknownFormatConversionException e) {
@@ -45,6 +51,9 @@ public class oat2dex {
             System.out.println("Error! Cannot create output dex file!");
         } catch (SecurityException e) {
             System.out.println(e.toString());
+        } finally {
+            /* Return extracted dex file number back to caller, ex. cmd shell */
+            System.exit(dexFileNumber);            
         }
     }
 }
